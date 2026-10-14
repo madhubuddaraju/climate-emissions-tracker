@@ -1,0 +1,16 @@
+# downloaded and generated data (rebuilt by `make pipeline`)
+data/
+*.duckdb
+*.duckdb.wal
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.vscode/
+.idea/
+.DS_Store
+.streamlit/secrets.toml

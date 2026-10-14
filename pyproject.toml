@@ -1,0 +1,16 @@
+[project]
+name = "climate-emissions-tracker"
+version = "1.0.0"
+description = "Automated pipeline and analysis of global temperature, atmospheric CO2 and national emissions"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
