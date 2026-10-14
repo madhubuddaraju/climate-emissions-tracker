@@ -79,6 +79,6 @@ goods) than it emits at home._
 
 | Dataset | Publisher | Fetched (UTC) |
 |---|---|---|
-| [emissions](https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv) | Our World in Data / Global Carbon Project | 2026-10-14 22:21 |
-| [temperature](https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv) | NOAA NCEI / NASA GISS via datasets/global-temp | 2026-10-14 22:21 |
-| [co2_ppm](https://raw.githubusercontent.com/datasets/co2-ppm/main/data/co2-mm-mlo.csv) | NOAA Global Monitoring Laboratory via datasets/co2-ppm | 2026-10-14 22:21 |
+| [emissions](https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv) | Our World in Data / Global Carbon Project | 2026-10-14 22:35 |
+| [temperature](https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv) | NOAA NCEI / NASA GISS via datasets/global-temp | 2026-10-14 22:35 |
+| [co2_ppm](https://raw.githubusercontent.com/datasets/co2-ppm/main/data/co2-mm-mlo.csv) | NOAA Global Monitoring Laboratory via datasets/co2-ppm | 2026-10-14 22:35 |
