@@ -1,0 +1,28 @@
+-- Grain: entity x year. CO2 and GHG in million tonnes (Mt); GDP in 2011 international $.
+SELECT
+    country                      AS entity,
+    entity_type,
+    year,
+    population,
+    gdp,
+    co2                          AS co2_mt,
+    co2_per_capita               AS co2_t_per_capita,
+    co2_per_gdp                  AS co2_kg_per_dollar,
+    coal_co2                     AS coal_co2_mt,
+    oil_co2                      AS oil_co2_mt,
+    gas_co2                      AS gas_co2_mt,
+    cement_co2                   AS cement_co2_mt,
+    flaring_co2                  AS flaring_co2_mt,
+    other_industry_co2           AS other_co2_mt,
+    land_use_change_co2          AS land_use_co2_mt,
+    consumption_co2              AS consumption_co2_mt,
+    trade_co2                    AS trade_co2_mt,
+    cumulative_co2               AS cumulative_co2_mt,
+    share_global_co2             AS share_global_co2_pct,
+    share_global_cumulative_co2  AS share_global_cumulative_co2_pct,
+    total_ghg                    AS total_ghg_mt,
+    methane                      AS methane_mt_co2e,
+    nitrous_oxide                AS nitrous_oxide_mt_co2e,
+    energy_per_capita            AS energy_kwh_per_capita,
+    temperature_change_from_ghg  AS warming_contribution_c
+FROM staging.stg_emissions
