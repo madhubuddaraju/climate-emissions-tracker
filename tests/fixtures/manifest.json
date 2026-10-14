@@ -1,0 +1,29 @@
+{
+  "emissions": {
+    "url": "fixture://emissions",
+    "publisher": "test fixture",
+    "fetched_at": "2026-01-01T00:00:00+00:00",
+    "bytes": 0,
+    "rows": 0,
+    "sha256": "",
+    "changed_since_last_fetch": false
+  },
+  "temperature": {
+    "url": "fixture://temperature",
+    "publisher": "test fixture",
+    "fetched_at": "2026-01-01T00:00:00+00:00",
+    "bytes": 0,
+    "rows": 0,
+    "sha256": "",
+    "changed_since_last_fetch": false
+  },
+  "co2_ppm": {
+    "url": "fixture://co2_ppm",
+    "publisher": "test fixture",
+    "fetched_at": "2026-01-01T00:00:00+00:00",
+    "bytes": 0,
+    "rows": 0,
+    "sha256": "",
+    "changed_since_last_fetch": false
+  }
+}
