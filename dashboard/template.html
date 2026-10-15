@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Climate &amp; Emissions Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body { margin: 0; }
+img { max-width: 100%; }
+
+/* Layout: a field-station report - serif headline over instrument readings, then stacked evidence panels; one column on phones */
+:root {
+  --bg: #f4f6f7; --surface: #ffffff; --line: #dfe4e7; --ink: #10181d; --ink-2: #4c5961; --ink-3: #85919a;
+  --warm: #d9542b; --warm-soft: #f1a98f; --cool: #2a78d6; --cool-soft: #9cc1ec; --aqua: #1baf7a; --neutral: #9aa3a9;
+  --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #6250d6;
+  --good: #1a7f4b; --good-bg: #e2f3e9; --warn: #9a6200; --warn-bg: #fbf0d9;
+  --f-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1418; --surface: #161d22; --line: #26313a; --ink: #eef2f4; --ink-2: #b2bec6; --ink-3: #7c8a94;
+  --warm: #e8693f; --warm-soft: #8a3f27; --cool: #3987e5; --cool-soft: #274a72; --aqua: #199e70; --neutral: #6b767d;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #9085e9;
+  --good: #5ccf8f; --good-bg: #12301f; --warn: #e8b04a; --warn-bg: #33270f;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1418; --surface: #161d22; --line: #26313a; --ink: #eef2f4; --ink-2: #b2bec6; --ink-3: #7c8a94;
+  --warm: #e8693f; --warm-soft: #8a3f27; --cool: #3987e5; --cool-soft: #274a72; --aqua: #199e70; --neutral: #6b767d;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #9085e9;
+  --good: #5ccf8f; --good-bg: #12301f; --warn: #e8b04a; --warn-bg: #33270f;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 18px; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 4px 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 19px; margin: 0; text-wrap: balance; }
+.lede { color: var(--ink-2); max-width: 68ch; margin: 0; }
+.label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); font-weight: 600; }
+.mono, .kpi .v, td.num, .chip { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); }
+.chip.good { background: var(--good-bg); color: var(--good); border-color: transparent; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 12px;
+  background: var(--line); gap: 1px; overflow: hidden; }
+.kpi { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.kpi .v { font-size: 24px; font-weight: 500; letter-spacing: -0.02em; }
+.kpi .v.warm { color: var(--warm); }
+.kpi .s { font-size: 12.5px; color: var(--ink-3); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px; }
+.note { font-size: 12.5px; color: var(--ink-3); }
+.takeaway { margin: 0; color: var(--ink-2); max-width: 75ch; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.chart { position: relative; height: 320px; }
+.chart.tall { height: 360px; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; padding: 6px 12px; border: 0; background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--c1); outline-offset: 2px; }
+
+.picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.picker button { font: inherit; font-size: 13px; padding: 4px 10px 4px 8px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink-2); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.picker button .sw { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.picker button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink-3); font-weight: 600; }
+.picker button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.legend i.line { height: 2px; border-radius: 1px; width: 16px; }
+
+.scroll { overflow-x: auto; min-width: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); font-weight: 600;
+  padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th.num, td.num { text-align: right; }
+td.up { color: var(--warm); } td.down { color: var(--c1); }
+tr:last-child td { border-bottom: 0; }
+
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.checks b { font-family: var(--f-data); font-weight: 500; color: var(--good); margin-right: 6px; }
+.checks .fail b { color: var(--warn); }
+.sources { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); }
+a { color: var(--c1); }
+footer { color: var(--ink-3); font-size: 12.5px; }
+
+@media (max-width: 960px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .grid2 { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi .v { font-size: 20px; } .chart, .chart.tall { height: 270px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="label">climate-emissions-tracker · refreshed weekly</div>
+    <h1>Climate &amp; Emissions Tracker</h1>
+    <p class="lede">Global temperature, atmospheric CO₂ and national emissions from NOAA, NASA and the Global Carbon Project, combined in one warehouse. Temperatures are relative to the 1850-1900 pre-industrial average.</p>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <section class="kpis" id="kpis" aria-label="Latest readings"></section>
+
+  <section class="panel">
+    <div class="head">
+      <h2>Global temperature anomaly</h2>
+      <div class="seg" id="tRange" role="group" aria-label="Time range">
+        <button type="button" data-from="1850" aria-pressed="true">Since 1850</button>
+        <button type="button" data-from="1950" aria-pressed="false">Since 1950</button>
+        <button type="button" data-from="1990" aria-pressed="false">Since 1990</button>
+      </div>
+    </div>
+    <div class="legend"><span><i style="background:var(--warm-soft)"></i>Warmer than 1850-1900</span><span><i style="background:var(--cool-soft)"></i>Cooler</span><span><i class="line" style="background:var(--ink)"></i>10-year average</span><span><i class="line" style="background:var(--ink-3)"></i>1.5 °C Paris limit</span></div>
+    <div class="chart tall"><canvas id="tChart" role="img" aria-label="Annual global temperature anomaly since 1850"></canvas></div>
+    <p class="takeaway" id="tTake"></p>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="head"><h2>The Keeling Curve</h2><span class="note">Mauna Loa, monthly</span></div>
+      <div class="legend"><span><i class="line" style="background:var(--cool-soft)"></i>Monthly mean</span><span><i class="line" style="background:var(--ink)"></i>Seasonally adjusted</span></div>
+      <div class="chart"><canvas id="kChart" role="img" aria-label="Atmospheric CO2 concentration since 1958"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="head"><h2>Temperature vs CO₂</h2><span class="note" id="regNote"></span></div>
+      <div class="legend"><span><i style="background:var(--c1);border-radius:50%"></i>One year (darker = recent)</span><span><i class="line" style="background:var(--warm)"></i>Linear fit</span></div>
+      <div class="chart"><canvas id="sChart" role="img" aria-label="Annual temperature anomaly against CO2 concentration"></canvas></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="head">
+      <h2>Country explorer</h2>
+      <div class="seg" id="cMetric" role="group" aria-label="Measure">
+        <button type="button" data-m="1" aria-pressed="true">Total CO₂</button>
+        <button type="button" data-m="2" aria-pressed="false">Per person</button>
+      </div>
+    </div>
+    <div class="picker" id="picker"></div>
+    <span class="note">Pick up to 6 countries. Fossil and industry CO₂, territorial, 1950 onward.</span>
+    <div class="chart tall"><canvas id="cChart" role="img" aria-label="CO2 emissions over time for selected countries"></canvas></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="head"><h2>Who grew GDP and cut CO₂?</h2><span class="note" id="decNote"></span></div>
+      <div class="legend" id="decLegend"></div>
+      <div class="chart"><canvas id="dChart" role="img" aria-label="GDP change versus CO2 change by country"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="head"><h2>World CO₂ by source</h2><span class="note">Billion tonnes per year</span></div>
+      <div class="legend" id="fuelLegend"></div>
+      <div class="chart"><canvas id="fChart" role="img" aria-label="World fossil CO2 emissions by fuel since 1950"></canvas></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="head"><h2>Largest emitters</h2><span class="note" id="tblNote"></span></div>
+    <div class="scroll"><table id="tbl"></table></div>
+  </section>
+
+  <section class="panel">
+    <div class="head"><h2>Data sources and quality</h2></div>
+    <div class="sources" id="sources"></div>
+    <div class="checks" id="checks"></div>
+  </section>
+
+  <footer>Code and methodology: <a href="https://github.com/madhubuddaraju/climate-emissions-tracker">github.com/madhubuddaraju/climate-emissions-tracker</a>. Data: NOAA NCEI, NASA GISS, NOAA GML, Our World in Data (CC BY 4.0).</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const D = __DATA__;
+const $ = (id) => document.getElementById(id);
+const v = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const sgn = (x, d = 2) => (x >= 0 ? "+" : "") + x.toFixed(d);
+const pct = (x, d = 0) => x == null ? "–" : (x >= 0 ? "+" : "") + (x * 100).toFixed(d) + "%";
+const fmt = (x) => Math.round(x).toLocaleString("en-US");
+const rgba = (hex, a) => { const h = hex.replace("#", ""); const n = parseInt(h.length === 3 ? h.replace(/./g, "$&$&") : h, 16);
+  return `rgba(${n >> 16 & 255}, ${n >> 8 & 255}, ${n & 255}, ${a})`; };
+
+// annual columns: year, temp, temp10, tempComplete, ppm, ppmComplete, worldCO2, yoy
+const A = D.annual.filter((r) => r[3]);
+const last = A[A.length - 1], prev = A[A.length - 2];
+const E = D.annual.filter((r) => r[6] != null), eLast = E[E.length - 1];
+const co2Last = D.co2[D.co2.length - 1], co2YearAgo = D.co2[D.co2.length - 13];
+const recent10 = D.growth.slice(-10).reduce((s, r) => s + r[1], 0) / 10;
+const sixties = D.growth.filter((r) => r[0] >= 1960 && r[0] <= 1969);
+const g60 = sixties.reduce((s, r) => s + r[1], 0) / sixties.length;
+const monthName = (ym) => { const [y, m] = ym.split("-"); return new Date(+y, +m - 1).toLocaleString("en-US", { month: "short" }) + " " + y; };
+
+// ---- header + KPIs -------------------------------------------------------------
+const passed = D.dq.filter((d) => d[2]).length;
+$("chips").innerHTML =
+  `<span class="chip good"><i class="dot"></i>${passed}/${D.dq.length} quality checks</span>` +
+  `<span class="chip">Temperature to ${D.temp_last}</span><span class="chip">CO₂ to ${monthName(co2Last[0])}</span>` +
+  `<span class="chip">Emissions to ${eLast[0]}</span>`;
+const hottest = [...A].sort((a, b) => b[1] - a[1]);
+$("kpis").innerHTML = [
+  [`Temperature ${last[0]}`, `${sgn(last[1])} °C`, `${sgn(last[1] - prev[1])} °C vs ${prev[0]}`, true],
+  ["10-year average", `${sgn(last[2])} °C`, `Hottest year: ${hottest[0][0]} (${sgn(hottest[0][1])} °C)`, true],
+  [`CO₂, ${monthName(co2Last[0])}`, `${co2Last[1].toFixed(1)} ppm`, `${sgn(co2Last[1] - co2YearAgo[1])} ppm in a year`, false],
+  ["CO₂ growth, last 10 yrs", `${recent10.toFixed(2)} ppm/yr`, `${(recent10 / g60).toFixed(1)}x the 1960s rate`, false],
+  [`World fossil CO₂, ${eLast[0]}`, `${(eLast[6] / 1000).toFixed(1)} Gt`, `${pct(eLast[7], 1)} vs ${eLast[0] - 1}`, false],
+].map(([l, val, s, warm]) => `<div class="kpi"><span class="label">${l}</span><span class="v ${warm ? "warm" : ""}">${val}</span><span class="s">${s}</span></div>`).join("");
+
+// ---- shared chart setup ----------------------------------------------------------
+Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+Chart.defaults.font.size = 12;
+function axes(yTitle) {
+  const g = v("--line"), t = v("--ink-2");
+  return {
+    x: { grid: { display: false }, border: { color: g }, ticks: { color: t, maxRotation: 0, autoSkipPadding: 18 } },
+    y: { grid: { color: g, drawTicks: false }, border: { display: false }, ticks: { color: t, padding: 8 },
+         title: { display: !!yTitle, text: yTitle, color: v("--ink-3") } },
+  };
+}
+function tooltip(extra = {}) {
+  return { backgroundColor: v("--surface"), titleColor: v("--ink"), bodyColor: v("--ink-2"), borderColor: v("--line"),
+           borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true, ...extra };
+}
+const refLine = {  // horizontal reference line plugin (1.5 C)
+  id: "refLine",
+  afterDatasetsDraw(chart, _a, opts) {
+    if (opts.value == null) return;
+    const { ctx, chartArea: ca, scales: { y } } = chart;
+    const py = y.getPixelForValue(opts.value);
+    if (py < ca.top || py > ca.bottom) return;
+    ctx.save(); ctx.strokeStyle = v("--ink-3"); ctx.setLineDash([5, 4]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(ca.left, py); ctx.lineTo(ca.right, py); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle = v("--ink-2"); ctx.font = "12px " + Chart.defaults.font.family;
+    ctx.fillText(opts.label, ca.left + 6, py - 6); ctx.restore();
+  },
+};
+const charts = {};
+function make(id, cfg) { charts[id]?.destroy(); charts[id] = new Chart($(id), cfg); }
+
+// ---- temperature ---------------------------------------------------------------------
+let tFrom = 1850;
+function drawTemp() {
+  const rows = A.filter((r) => r[0] >= tFrom);
+  make("tChart", { type: "bar", plugins: [refLine], data: { labels: rows.map((r) => r[0]), datasets: [
+    { type: "line", label: "10-year average", data: rows.map((r) => r[2]), borderColor: v("--ink"), borderWidth: 2, pointRadius: 0, tension: 0.2 },
+    { label: "Annual anomaly", data: rows.map((r) => r[1]), backgroundColor: rows.map((r) => r[1] >= 0 ? v("--warm-soft") : v("--cool-soft")), borderRadius: 2, categoryPercentage: 0.9, barPercentage: 1 },
+  ] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 200 },
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, refLine: { value: 1.5, label: "1.5 °C" },
+      tooltip: tooltip({ callbacks: { label: (c) => ` ${c.dataset.label}: ${sgn(c.parsed.y)} °C` } }) },
+    scales: { ...axes("°C vs 1850-1900"), y: { ...axes("°C vs 1850-1900").y, suggestedMax: 1.65 } } } });
+  const top10 = hottest.slice(0, 10).map((r) => r[0]);
+  $("tTake").textContent = `The ten hottest years on record all fall in ${Math.min(...top10)}-${Math.max(...top10)}. The 10-year average reached ${sgn(last[2])} °C in ${last[0]}, up from ${sgn(A.find((r) => r[0] === 1980)[2])} °C in 1980.`;
+}
+$("tRange").onclick = (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  tFrom = +b.dataset.from;
+  $("tRange").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  drawTemp();
+};
+
+// ---- Keeling curve ------------------------------------------------------------------
+function drawKeeling() {
+  make("kChart", { type: "line", data: { labels: D.co2.map((r) => r[0]), datasets: [
+    { label: "Seasonally adjusted", data: D.co2.map((r) => r[2]), borderColor: v("--ink"), borderWidth: 2, pointRadius: 0 },
+    { label: "Monthly mean", data: D.co2.map((r) => r[1]), borderColor: v("--cool-soft"), borderWidth: 1.2, pointRadius: 0 },
+  ] }, options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, tooltip: tooltip({ callbacks: { title: (i) => monthName(i[0].label), label: (c) => ` ${c.dataset.label}: ${c.parsed.y?.toFixed(2)} ppm` } }) },
+    scales: { ...axes("ppm"), x: { ...axes().x, ticks: { ...axes().x.ticks, callback(val) { const l = this.getLabelForValue(val); return l.endsWith("-01") && +l.slice(0, 4) % 10 === 0 ? l.slice(0, 4) : null; }, autoSkip: false } } } } });
+}
+
+// ---- temperature vs CO2 ---------------------------------------------------------------
+function drawScatter() {
+  const pts = A.filter((r) => r[4] != null && r[5]);
+  const n = pts.length, mx = pts.reduce((s, r) => s + r[4], 0) / n, my = pts.reduce((s, r) => s + r[1], 0) / n;
+  let sxy = 0, sxx = 0, syy = 0;
+  for (const r of pts) { sxy += (r[4] - mx) * (r[1] - my); sxx += (r[4] - mx) ** 2; syy += (r[1] - my) ** 2; }
+  const b = sxy / sxx, a = my - b * mx, r2 = sxy * sxy / (sxx * syy);
+  $("regNote").textContent = `${sgn(b * 100)} °C per 100 ppm · R² ${r2.toFixed(2)}`;
+  const y0 = pts[0][0], y1 = pts[n - 1][0];
+  const xs = pts.map((r) => r[4]), lo = Math.min(...xs), hi = Math.max(...xs);
+  const base = v("--c1");
+  make("sChart", { type: "scatter", data: { datasets: [
+    { label: "Fit", type: "line", data: [{ x: lo, y: a + b * lo }, { x: hi, y: a + b * hi }], borderColor: v("--warm"), borderWidth: 2, pointRadius: 0 },
+    { label: "Year", data: pts.map((r) => ({ x: r[4], y: r[1], year: r[0] })), pointRadius: 5, pointHoverRadius: 7,
+      backgroundColor: pts.map((r) => rgba(base, (0.2 + 0.8 * (r[0] - y0) / (y1 - y0)).toFixed(2))),
+      borderColor: v("--surface"), borderWidth: 1.5 },
+  ] }, options: { responsive: true, maintainAspectRatio: false, animation: false,
+    plugins: { legend: { display: false }, tooltip: tooltip({ filter: (i) => i.datasetIndex === 1, callbacks: { label: (c) => ` ${c.raw.year}: ${c.raw.x.toFixed(1)} ppm, ${sgn(c.raw.y)} °C` } }) },
+    scales: { x: { ...axes().x, type: "linear", title: { display: true, text: "CO₂ (ppm)", color: v("--ink-3") } }, y: axes("°C vs 1850-1900").y } } });
+}
+
+// ---- country explorer -----------------------------------------------------------------
+const palette = ["--c1", "--c2", "--c3", "--c4", "--c5", "--c6"];
+const pool = Object.keys(D.hist);
+let picked = ["China", "United States", "India", "Germany"].filter((c) => pool.includes(c));
+let metric = 1;
+const colorOf = {};  // color follows the country, never its position
+function assignColors() {
+  for (const c of Object.keys(colorOf)) if (!picked.includes(c)) delete colorOf[c];
+  for (const c of picked) if (!colorOf[c]) colorOf[c] = palette.find((p) => !Object.values(colorOf).includes(p));
+}
+function drawPicker() {
+  $("picker").innerHTML = pool.map((c) => {
+    const on = picked.includes(c);
+    return `<button type="button" data-c="${c}" aria-pressed="${on}" ${!on && picked.length >= 6 ? "disabled" : ""}><span class="sw" style="${on ? `background:var(${colorOf[c]})` : ""}"></span>${c}</button>`;
+  }).join("");
+}
+$("picker").onclick = (e) => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  const c = b.dataset.c;
+  picked = picked.includes(c) ? picked.filter((x) => x !== c) : [...picked, c];
+  assignColors(); drawPicker(); drawCountries();
+};
+$("cMetric").onclick = (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  metric = +b.dataset.m;
+  $("cMetric").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  drawCountries();
+};
+function drawCountries() {
+  const years = Array.from({ length: eLast[0] - 1950 + 1 }, (_, i) => 1950 + i);
+  const unit = metric === 1 ? "Mt" : "t per person";
+  make("cChart", { type: "line", data: { labels: years, datasets: picked.map((c) => {
+    const m = new Map(D.hist[c].map((r) => [r[0], r[metric]]));
+    return { label: c, data: years.map((y) => m.get(y) ?? null), borderColor: v(colorOf[c]), backgroundColor: v(colorOf[c]), borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, spanGaps: true };
+  }) }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 200 },
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: true, position: "top", align: "start", labels: { color: v("--ink-2"), usePointStyle: true, pointStyle: "line", boxWidth: 18 } },
+      tooltip: tooltip({ itemSort: (a, b) => b.parsed.y - a.parsed.y, callbacks: { label: (c) => ` ${c.dataset.label}: ${metric === 1 ? fmt(c.parsed.y) : c.parsed.y.toFixed(2)} ${unit}` } }) },
+    scales: axes(metric === 1 ? "Million tonnes CO₂" : "Tonnes CO₂ per person") } });
+}
+
+// ---- decoupling ----------------------------------------------------------------------
+const statusColor = { "Absolute decoupling": "--c3", "Relative decoupling": "--c1", "Coupled growth": "--c2", "Economic decline": "--neutral" };
+function drawDecoupling() {
+  const end = D.decoup[0]?.[5];
+  const count = (s) => D.decoup.filter((r) => r[4] === s).length;
+  $("decNote").textContent = `2010 to ${end}, countries over 10 Mt`;
+  $("decLegend").innerHTML = Object.entries(statusColor).map(([s, c]) => `<span><i style="background:var(${c});border-radius:50%"></i>${s} (${count(s)})</span>`).join("");
+  make("dChart", { type: "bubble", data: { datasets: Object.entries(statusColor).map(([s, c]) => ({
+    label: s, backgroundColor: rgba(v(c), 0.75), borderColor: v("--surface"), borderWidth: 1.5,
+    data: D.decoup.filter((r) => r[4] === s).map((r) => ({ x: r[1] * 100, y: r[2] * 100, r: Math.max(4, Math.sqrt(r[3]) / 4), name: r[0], mt: r[3] })),
+  })) }, options: { responsive: true, maintainAspectRatio: false, animation: false,
+    plugins: { legend: { display: false }, tooltip: tooltip({ callbacks: { label: (c) => ` ${c.raw.name}: GDP ${sgn(c.raw.x, 0)}%, CO₂ ${sgn(c.raw.y, 0)}% (${fmt(c.raw.mt)} Mt)` } }) },
+    scales: { x: { ...axes().x, type: "linear", grid: { color: (ctx) => ctx.tick.value === 0 ? v("--ink-3") : "transparent" }, ticks: { ...axes().x.ticks, callback: (t) => t + "%" }, title: { display: true, text: "GDP change", color: v("--ink-3") } },
+              y: { ...axes().y, grid: { color: (ctx) => ctx.tick.value === 0 ? v("--ink-3") : v("--line"), drawTicks: false }, ticks: { ...axes().y.ticks, callback: (t) => t + "%" }, title: { display: true, text: "CO₂ change", color: v("--ink-3") } } } } });
+}
+
+// ---- fuel mix ---------------------------------------------------------------------------
+function drawFuel() {
+  const order = [["coal", "Coal", "--ink-2"], ["oil", "Oil", "--c2"], ["gas", "Gas", "--c1"], ["cement", "Cement", "--c4"], ["rest", "Flaring & other", "--neutral"]];
+  const years = [...new Set(D.fuel.map((r) => r[0]))];
+  const by = {}; for (const [y, f, val] of D.fuel) { const k = ["flaring", "other"].includes(f) ? "rest" : f; (by[k] ??= {})[y] = (by[k][y] ?? 0) + (val ?? 0); }
+  $("fuelLegend").innerHTML = order.map(([, l, c]) => `<span><i style="background:var(${c})"></i>${l}</span>`).join("");
+  make("fChart", { type: "line", data: { labels: years, datasets: order.map(([k, l, c]) => ({
+    label: l, data: years.map((y) => (by[k]?.[y] ?? 0) / 1000), fill: true, backgroundColor: v(c), borderColor: v("--surface"), borderWidth: 1, pointRadius: 0,
+  })) }, options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, tooltip: tooltip({ itemSort: (a, b) => b.datasetIndex - a.datasetIndex,
+      callbacks: { label: (c) => ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)} Gt`, footer: (it) => "Total: " + it.reduce((s, i) => s + i.parsed.y, 0).toFixed(1) + " Gt" } }) },
+    scales: { ...axes("Gt CO₂"), y: { ...axes("Gt CO₂").y, stacked: true } } } });
+}
+
+// ---- table + quality -----------------------------------------------------------------------
+function drawTable() {
+  const rows = D.latest.slice(0, 15);
+  $("tblNote").textContent = `${rows[0][7]}, consumption-based figure is the latest available`;
+  const cls = (x) => x == null ? "" : x > 0 ? "up" : "down";
+  $("tbl").innerHTML = "<thead><tr><th>#</th><th>Country</th><th class='num'>CO₂ (Mt)</th><th class='num'>t / person</th><th class='num'>Share</th><th class='num'>Since 1990</th><th class='num'>Since Paris 2015</th><th class='num'>Consumption vs territorial</th></tr></thead><tbody>" +
+    rows.map((r, i) => `<tr><td class="num mono" style="color:var(--ink-3)">${i + 1}</td><td>${r[0]}</td><td class="num">${fmt(r[1])}</td><td class="num">${r[2].toFixed(1)}</td><td class="num">${r[3].toFixed(1)}%</td>
+      <td class="num ${cls(r[4])}">${pct(r[4])}</td><td class="num ${cls(r[5])}">${pct(r[5])}</td><td class="num">${pct(r[6])}</td></tr>`).join("") + "</tbody>";
+  $("sources").innerHTML = D.sources.map(([s, pub, url, at]) => `<div><a href="${url}">${s}</a> · ${pub} · <span class="mono" style="font-size:12px">fetched ${String(at).slice(0, 16).replace("T", " ")} UTC</span></div>`).join("");
+  $("checks").innerHTML = D.dq.map(([n, sev, ok]) => `<div class="${ok ? "" : "fail"}"><b>${ok ? "PASS" : "WARN"}</b>${n}</div>`).join("");
+}
+
+function drawAll() { drawTemp(); drawKeeling(); drawScatter(); drawCountries(); drawDecoupling(); drawFuel(); }
+assignColors(); drawPicker(); drawTable(); drawAll();
+const rethemed = () => { drawPicker(); drawAll(); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rethemed);
+new MutationObserver(rethemed).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+</body>
+</html>

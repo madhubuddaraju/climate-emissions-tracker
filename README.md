@@ -12,7 +12,8 @@ and who is actually cutting?**
 A scheduled GitHub Actions job re-downloads every source each week, rebuilds the warehouse, re-runs the
 quality checks and commits a refreshed report, so the charts and findings in this repo stay current on their own.
 
-**Latest findings (auto-updated): [`reports/insights.md`](reports/insights.md)**
+**Live dashboard: [madhubuddaraju.github.io/climate-emissions-tracker](https://madhubuddaraju.github.io/climate-emissions-tracker/)**
+· **Latest findings (auto-updated): [`reports/insights.md`](reports/insights.md)**
 
 ![Global temperature anomaly](reports/figures/temperature_anomaly.png)
 

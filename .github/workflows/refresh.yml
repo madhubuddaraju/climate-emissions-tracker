@@ -26,18 +26,18 @@ jobs:
           cache-dependency-path: requirements.txt
       - run: pip install -r requirements.txt pytest
       - name: Refresh data and rebuild
-        run: make refresh report
+        run: make refresh report web
       - name: Verify
         run: make test
       - name: Commit updated report
         run: |
-          if git diff --quiet -- reports/; then
+          if git diff --quiet -- reports/ docs/; then
             echo "No changes in the data this week."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/
+          git add reports/ docs/
           git commit -m "Weekly data refresh: $(date -u +%Y-%m-%d)"
           git push
       - name: Upload warehouse
