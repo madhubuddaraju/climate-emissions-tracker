@@ -1,7 +1,7 @@
 # Climate & Emissions Tracker
 
-![CI](https://github.com/madhubuddaraju/climate-emissions-tracker/actions/workflows/ci.yml/badge.svg)
-![Weekly refresh](https://github.com/madhubuddaraju/climate-emissions-tracker/actions/workflows/refresh.yml/badge.svg)
+![CI](https://github.com/subbarajubuddaraju/climate-emissions-tracker/actions/workflows/ci.yml/badge.svg)
+![Weekly refresh](https://github.com/subbarajubuddaraju/climate-emissions-tracker/actions/workflows/refresh.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![DuckDB](https://img.shields.io/badge/warehouse-DuckDB-yellow)
 
@@ -12,7 +12,7 @@ and who is actually cutting?**
 A scheduled GitHub Actions job re-downloads every source each week, rebuilds the warehouse, re-runs the
 quality checks and commits a refreshed report, so the charts and findings in this repo stay current on their own.
 
-**Live dashboard: [madhubuddaraju.github.io/climate-emissions-tracker](https://madhubuddaraju.github.io/climate-emissions-tracker/)**
+**Live dashboard: [subbarajubuddaraju.github.io/climate-emissions-tracker](https://subbarajubuddaraju.github.io/climate-emissions-tracker/)**
 · **Latest findings (auto-updated): [`reports/insights.md`](reports/insights.md)**
 
 ![Global temperature anomaly](reports/figures/temperature_anomaly.png)
@@ -95,7 +95,7 @@ logic without depending on the network, then a separate CI step runs against the
 ## Quick start
 
 ```bash
-git clone https://github.com/madhubuddaraju/climate-emissions-tracker.git
+git clone https://github.com/subbarajubuddaraju/climate-emissions-tracker.git
 cd climate-emissions-tracker
 python -m venv .venv && source .venv/bin/activate
 make install

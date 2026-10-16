@@ -21,7 +21,7 @@ from .config import RAW_DIR, SOURCES, Source
 
 log = logging.getLogger(__name__)
 
-USER_AGENT = "climate-emissions-tracker/1.0 (+https://github.com/madhubuddaraju/climate-emissions-tracker)"
+USER_AGENT = "climate-emissions-tracker/1.0 (+https://github.com/subbarajubuddaraju/climate-emissions-tracker)"
 
 
 class IngestError(RuntimeError):
